@@ -182,7 +182,7 @@ while True:
         if aiButton.collidepoint(mouse) and not lost:
             move = ai.make_safe_move()
             if move is None:
-                move = ai.make_random_move()
+                move = ai.make_random_move() #Primero veo si puedo hacer un movimiento seguro, si no hago uno random.
                 if move is None:
                     flags = ai.mines.copy()
                     print("No moves left to make.")

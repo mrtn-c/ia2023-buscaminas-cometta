@@ -105,7 +105,7 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        # Si el número de minas conocido es igual al número de celdas en la sentencia, todas las celdas son minas.
+        # Si self.count = len(self.cell) es porque todas son minas.
         if self.count == len(self.cells):
             return self.cells.copy()
         return set()
@@ -114,7 +114,7 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        # Si el número de minas conocido es 0, todas las celdas son seguras.
+        # Si es 0, es porque todas las celdas son seguras.
         if self.count == 0:
             return self.cells.copy()
         return set()
@@ -125,9 +125,9 @@ class Sentence():
         a cell is known to be a mine.
         """
         if cell in self.cells:
-            # La celda es una mina, por lo que debe ser eliminada de la sentencia.
+            # La celda es una mina, por lo que debe ser eliminada de la sentencia
             self.cells.remove(cell)
-            # Se reduce el número de minas conocido en la sentencia.
+            # Se reduce el número de minas conocido en la sentencia
             self.count -= 1
 
     def mark_safe(self, cell):
@@ -136,7 +136,7 @@ class Sentence():
         a cell is known to be safe.
         """
         if cell in self.cells:
-            # La celda es segura, por lo que debe ser eliminada de la sentencia.
+            # Celda segura, la elimino de la sentencia
             self.cells.remove(cell)
 
 
@@ -147,18 +147,18 @@ class MinesweeperAI():
 
     def __init__(self, height=8, width=8):
 
-        # Set initial height and width
+        # Altura y ancho inicial.
         self.height = height
         self.width = width
 
-        # Keep track of which cells have been clicked on
+        # Rastro de las celdas en las que he clickeado.
         self.moves_made = set()
 
-        # Keep track of cells known to be safe or mines
+        # Rastro de las celdas que son minas y las que son seguras.
         self.mines = set()
         self.safes = set()
 
-        # List of sentences about the game known to be true
+        # Conocimiento
         self.knowledge = []
 
     def mark_mine(self, cell):
@@ -180,40 +180,22 @@ class MinesweeperAI():
             sentence.mark_safe(cell)
 
     def add_knowledge(self, cell, count):
-        """
-        Called when the Minesweeper board tells us, for a given
-        safe cell, how many neighboring cells have mines in them.
-
-        This function should:
-            1) mark the cell as a move that has been made
-            2) mark the cell as safe
-            3) add a new sentence to the AI's knowledge base
-               based on the value of `cell` and `count`
-            4) mark any additional cells as safe or as mines
-               if it can be concluded based on the AI's knowledge base
-            5) add any new sentences to the AI's knowledge base
-               if they can be inferred from existing knowledge
-        """
-        i, j = cell
-
+        
+        i, j = cell #posicion
         # 1) Marcar la celda como un movimiento realizado
         self.moves_made.add(cell)
-
         # 2) Marcar la celda como segura
         self.mark_safe(cell)
-
-        # 3) Agregar una nueva sentencia a la base de conocimientos
-        # para indicar que count de los vecinos de cell son minas
+        # 3) Agregar una nueva sentencia a la base de conocimientos para indicar que count de los vecinos de cell son minas
         neighbors = []
+        
         for x in range(max(0, i - 1), min(self.height, i + 2)):
             for y in range(max(0, j - 1), min(self.width, j + 2)):
                 neighbor = (x, y)
                 if neighbor != cell and neighbor not in self.safes:
                     neighbors.append(neighbor)
-
         new_sentence = Sentence(neighbors, count)
         self.knowledge.append(new_sentence)
-
        # 4) y 5) Actualizar celdas como seguras o minas según la nueva información
         for sentence in self.knowledge:
             known_mines = sentence.known_mines()
@@ -224,7 +206,6 @@ class MinesweeperAI():
             if known_safes:
                 for safe in known_safes.copy():
                     self.mark_safe(safe)
-
         # 5) Agregar nuevas sentencias si se pueden inferir
         new_knowledge = []
         for sentence1 in self.knowledge:
@@ -249,14 +230,7 @@ class MinesweeperAI():
 
 
     def make_safe_move(self):
-        """
-        Returns a safe cell to choose on the Minesweeper board.
-        The move must be known to be safe, and not already a move
-        that has been made.
 
-        This function may use the knowledge in self.mines, self.safes
-        and self.moves_made, but should not modify any of those values.
-        """
         for i in range(self.height):
             for j in range(self.width):
                 cell = (i, j)
@@ -265,13 +239,18 @@ class MinesweeperAI():
                     return cell
         return None  # No se encontró un movimiento seguro
 
+        """
+        Returns a safe cell to choose on the Minesweeper board.
+        The move must be known to be safe, and not already a move
+        that has been made.
+
+        This function may use the knowledge in self.mines, self.safes
+        and self.moves_made, but should not modify any of those values.
+        """
+
+
     def make_random_move(self):
-        """
-        Returns a move to make on the Minesweeper board.
-        Should choose randomly among cells that:
-            1) have not already been chosen, and
-            2) are not known to be mines
-        """
+
         possible_moves = []
         for i in range(self.height):
             for j in range(self.width):
@@ -284,3 +263,11 @@ class MinesweeperAI():
             return random.choice(possible_moves)  # Aleatorio
         else:
             return None  # Si no hay aletorio
+
+
+        """
+        Returns a move to make on the Minesweeper board.
+        Should choose randomly among cells that:
+            1) have not already been chosen, and
+            2) are not known to be mines
+        """
